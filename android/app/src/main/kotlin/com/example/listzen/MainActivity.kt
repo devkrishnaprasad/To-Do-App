@@ -1,4 +1,4 @@
-package com.example.listzen
+package com.kp.listzen
 
 import io.flutter.embedding.android.FlutterActivity
 
