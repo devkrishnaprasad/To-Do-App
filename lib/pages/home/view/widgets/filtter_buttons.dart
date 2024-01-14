@@ -1,5 +1,11 @@
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:listzen/pages/home/controller/home_controller.dart';
+
+HomeController _homeController = Get.find();
 
 class ButtonList extends StatefulWidget {
   @override
@@ -40,8 +46,8 @@ class _ButtonListState extends State<ButtonList> {
         onPressed: () {
           setState(() {
             selectedButton = buttonText;
+            _homeController.currentTab.value = buttonText;
           });
-          print('$buttonText Button pressed!');
         },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 5.h),

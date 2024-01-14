@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:listzen/pages/home/controller/home_controller.dart';
+import 'package:listzen/services/localstorage/operations.dart';
 
 class AddTaskForm extends StatefulWidget {
   const AddTaskForm({super.key});
@@ -17,6 +20,8 @@ class _AddTaskFormState extends State<AddTaskForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? _dropdownValue;
 
+  final HomeController _homeController = Get.find();
+
   @override
   void initState() {
     dateInput.text = "";
@@ -25,6 +30,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
   }
 
   bool isChecked = false;
+  final DBOperations _dbOperations = Get.find();
 
   TimeOfDay remanderTime = TimeOfDay.now();
   @override
@@ -75,12 +81,13 @@ class _AddTaskFormState extends State<AddTaskForm> {
               Padding(
                 padding: EdgeInsets.only(top: 20.h, left: 10.w, right: 10.w),
                 child: TextFormField(
+                  keyboardType: TextInputType.number,
                   controller: taskDurationController,
                   obscureText: false,
                   cursorColor: const Color.fromARGB(255, 16, 53, 140),
                   decoration: InputDecoration(
                     labelText: 'Task Duration',
-                    hintText: 'Enter task duration minutes',
+                    hintText: 'Enter task duration in minutes',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
@@ -163,10 +170,8 @@ class _AddTaskFormState extends State<AddTaskForm> {
                         lastDate: DateTime(2100));
 
                     if (pickedDate != null) {
-                      print(pickedDate);
                       String formattedDate =
                           DateFormat('dd-MM-yyyy').format(pickedDate);
-                      print(formattedDate);
                       setState(() {
                         dateInput.text = formattedDate;
                       });
@@ -180,36 +185,36 @@ class _AddTaskFormState extends State<AddTaskForm> {
                   },
                 ),
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                      padding:
-                          EdgeInsets.only(left: 15.w, right: 10.w, top: 15.h),
-                      child: Row(
-                        children: [
-                          Text(
-                            'Enable Remainder',
-                            style: TextStyle(
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          Checkbox(
-                            activeColor: Color.fromARGB(255, 16, 53, 140),
-                            value: isChecked,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                isChecked = value!;
-                                print(isChecked);
-                              });
-                            },
-                          ),
-                        ],
-                      )),
-                ],
-              ),
+              // Column(
+              //   mainAxisAlignment: MainAxisAlignment.start,
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     Padding(
+              //         padding:
+              //             EdgeInsets.only(left: 15.w, right: 10.w, top: 15.h),
+              //         child: Row(
+              //           children: [
+              //             Text(
+              //               'Enable Remainder',
+              //               style: TextStyle(
+              //                 fontSize: 15.sp,
+              //                 fontWeight: FontWeight.normal,
+              //               ),
+              //             ),
+              //             Checkbox(
+              //               activeColor: const Color.fromARGB(255, 16, 53, 140),
+              //               value: isChecked,
+              //               onChanged: (bool? value) {
+              //                 setState(() {
+              //                   isChecked = value!;
+              //                 });
+              //               },
+              //             ),
+              //           ],
+              //         )),
+              //   ],
+              // ),
+
               Visibility(
                 visible: isChecked,
                 child: Padding(
@@ -262,7 +267,6 @@ class _AddTaskFormState extends State<AddTaskForm> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        print('Cancel button pressed');
                       },
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
@@ -280,14 +284,23 @@ class _AddTaskFormState extends State<AddTaskForm> {
                   Padding(
                     padding: EdgeInsets.only(right: 20.w),
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          print("Task Name ${taskNameController.text}");
-                          print("Task Duration ${taskDurationController.text}");
-                          print('Dropdown Value: $_dropdownValue');
-                          print('Selected  Date : ${dateInput.text}');
-                          print('Remainder Time : ${remainderController.text}');
-                          print('Submit button pressed');
+                          await _dbOperations.insertData(
+                            Tasks(
+                              taskName: taskNameController.text,
+                              taskDuration: taskDurationController.text,
+                              date: dateInput.text,
+                              reminderTime: remainderController.text,
+                              category: _dropdownValue.toString(),
+                              status: "false",
+                            ),
+                          );
+                          await _homeController.getTaskList(
+                              _homeController.formatDateString(
+                                  _homeController.baseDate.value));
+                          // ignore: use_build_context_synchronously
+                          Navigator.pop(context);
                         }
                       },
                       style: ButtonStyle(
