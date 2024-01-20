@@ -35,12 +35,15 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 100.h),
-              child: SizedBox(
-                width: 200.w,
-                height: 200.h,
-                child: Image.asset(
-                  "assets/icons/onboard_ic.png",
-                  fit: BoxFit.contain, // Adjust the fit property as needed
+              child: Semantics(
+                label: 'Listzen Logo',
+                child: SizedBox(
+                  width: 200.w,
+                  height: 200.h,
+                  child: Image.asset(
+                    "assets/icons/onboard_ic.png",
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
